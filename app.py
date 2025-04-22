@@ -11,14 +11,12 @@ import numpy as np
 # Initialize FastAPI
 app = FastAPI()
 
-# Load sentence transformer model
+# Loading sentence transformer model
 sent_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Privacy-related keywords and legal phrases (can be expanded)
+# Privacy-related keywords and legal phrases the extraction must prioritize when looking for key sentences
 legal_phrases = {"third-party sharing", "right to be forgotten", "legitimate interest"}
 
-#class HTMLInput(BaseModel):
-   #file_path: str
 class URLRequest(BaseModel):
     url: str
 
@@ -27,6 +25,7 @@ def preprocess_text(text):
         text = text.replace(phrase, phrase.replace(" ", "_"))
     return text
 
+#TF-IDF extraction function
 def td_extract_summary(text, boost_factor=2.0):
     text = preprocess_text(text)
     sentences = sent_tokenize(text)
@@ -43,8 +42,8 @@ def td_extract_summary(text, boost_factor=2.0):
     
     return " ".join(top_sentences)
 
+ # Fetch the HTML content from the provided URL
 def extraction_function(url):
-   # Fetch the HTML content from the provided URL
     response = requests.get(url)
     if response.status_code != 200:
         raise ValueError(f"Failed to fetch the URL: {url}")
@@ -70,10 +69,11 @@ def extraction_function(url):
 
     return sections
 
+#API endpoint
 @app.post("/extract_summary")
 async def summarize(request: URLRequest):
     # Pass the URL from the request to the extraction function
-    extracted_summary = extraction_function(request.url)  # Use 'request.url' instead of 'html_input.file_path'
+    extracted_summary = extraction_function(request.url) 
     
     if not extracted_summary:
         return {"error": "No text extracted from the document."}
@@ -81,10 +81,9 @@ async def summarize(request: URLRequest):
     final_summary = {}
     
     for heading, text in extracted_summary.items():
-        # Assuming td_extract_summary is your extractive summarization function
         extractive_mod_summary = td_extract_summary(text)
         
-        # Clean the text (remove newlines and extra spaces)
+        # Cleaning the text i.e removing any extra spaces
         cleaned_text = extractive_mod_summary.replace("\n", " ").strip()
         final_summary[heading] = cleaned_text
     
