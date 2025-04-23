@@ -72,7 +72,7 @@ def extraction_function(url):
 #API endpoint
 @app.post("/extract")
 async def summarize(request: URLRequest):
-    extracted_sections = extraction_function(request.url) # Renamed for clarity
+    extracted_sections = extraction_function(request.url) 
 
     if not extracted_sections:
         return {"error": "No text sections extracted from the document."}
@@ -80,15 +80,10 @@ async def summarize(request: URLRequest):
     final_summary = {}
 
     for heading, text in extracted_sections.items():
-        print(f"--- Processing Section ---") # DEBUG START
-        print(f"Heading: '{heading}'")
-        print(f"Text (first 100 chars): '{text[:100]}...'")
-        print(f"Is text empty or whitespace?: {not text or text.isspace()}") # DEBUG END
-
-        # Add a check to skip empty sections
+        # If there are empty or unreadable sections, it should skip and assign some text to indicate that there is no text
         if not text or text.isspace():
              print(f"Skipping empty section: {heading}")
-             final_summary[heading] = "Section contained no processable text." # Or skip adding it
+             final_summary[heading] = "Sorry, there's nothing to see here." 
              continue # Skip to the next section
 
         try:
@@ -96,7 +91,7 @@ async def summarize(request: URLRequest):
             cleaned_text = extractive_mod_summary.replace("\n", " ").strip()
             final_summary[heading] = cleaned_text
         except ValueError as e:
-            print(f"Error processing section '{heading}': {e}") # Log the error
+            print(f"Error processing section '{heading}': {e}") # Logging the error for easier debugging
             final_summary[heading] = f"Error summarizing section: {e}" # Report error for this section
 
     return final_summary
