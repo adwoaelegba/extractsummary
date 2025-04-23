@@ -14,9 +14,3 @@ for file in os.listdir(punkt_path):
     if file != 'english.pickle':
         os.remove(os.path.join(punkt_path, file))
 
-# Step 3: Optional: Remove the 'PY3' folder (unnecessary)
-py3_folder = os.path.join(punkt_path, 'PY3')
-if os.path.exists(py3_folder):
-    shutil.rmtree(py3_folder)
-
-print("✅ NLTK setup completed!")
