@@ -1,7 +1,0 @@
-# Ignore all NLTK data
-nltk_data/*
-
-# But keep the English punkt tokenizer
-!nltk_data/tokenizers/
-!nltk_data/tokenizers/punkt/
-!nltk_data/tokenizers/punkt/english.pickle
