@@ -70,21 +70,33 @@ def extraction_function(url):
     return sections
 
 #API endpoint
-@app.post("/extract_summary")
+@app.post("/extract")
 async def summarize(request: URLRequest):
-    # Pass the URL from the request to the extraction function
-    extracted_summary = extraction_function(request.url) 
-    
-    if not extracted_summary:
-        return {"error": "No text extracted from the document."}
-    
+    extracted_sections = extraction_function(request.url) # Renamed for clarity
+
+    if not extracted_sections:
+        return {"error": "No text sections extracted from the document."}
+
     final_summary = {}
-    
-    for heading, text in extracted_summary.items():
-        extractive_mod_summary = td_extract_summary(text)
-        
-        # Cleaning the text i.e removing any extra spaces
-        cleaned_text = extractive_mod_summary.replace("\n", " ").strip()
-        final_summary[heading] = cleaned_text
-    
+
+    for heading, text in extracted_sections.items():
+        print(f"--- Processing Section ---") # DEBUG START
+        print(f"Heading: '{heading}'")
+        print(f"Text (first 100 chars): '{text[:100]}...'")
+        print(f"Is text empty or whitespace?: {not text or text.isspace()}") # DEBUG END
+
+        # Add a check to skip empty sections
+        if not text or text.isspace():
+             print(f"Skipping empty section: {heading}")
+             final_summary[heading] = "Section contained no processable text." # Or skip adding it
+             continue # Skip to the next section
+
+        try:
+            extractive_mod_summary = td_extract_summary(text)
+            cleaned_text = extractive_mod_summary.replace("\n", " ").strip()
+            final_summary[heading] = cleaned_text
+        except ValueError as e:
+            print(f"Error processing section '{heading}': {e}") # Log the error
+            final_summary[heading] = f"Error summarizing section: {e}" # Report error for this section
+
     return final_summary
