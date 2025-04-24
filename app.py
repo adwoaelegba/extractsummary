@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.tokenize import sent_tokenize
 import torch
 from bs4 import BeautifulSoup
 import requests
@@ -10,6 +9,8 @@ import numpy as np
 
 import nltk
 nltk.data.path.append("./nltk_data") 
+
+from nltk.tokenize import sent_tokenize
 
 # Initialize FastAPI
 app = FastAPI()
