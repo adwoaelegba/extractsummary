@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup
 import requests
 import numpy as np
 
+import nltk
+nltk.data.path.append("./nltk_data") 
+
 # Initialize FastAPI
 app = FastAPI()
 
